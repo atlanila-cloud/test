@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antalis - Mockup Prix Dynamique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .demo-title h1 {
+            color: #E6007E;
+            margin-bottom: 10px;
+        }
+
+        .demo-title p {
+            color: #666;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #f9f9f9;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .card-header h3 {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-image {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .product-image img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .product-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .product-ref {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .delivery-badge {
+            display: inline-block;
+            background: #00C853;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* Price Section */
+        .price-section {
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+
+        .price-initial {
+            transition: all 0.3s ease;
+        }
+
+        .price-initial.hidden {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .price-dynamic {
+            transition: all 0.3s ease;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .price-dynamic.visible {
+            opacity: 1;
+            height: auto;
+        }
+
+        .old-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .discount-badge {
+            display: inline-block;
+            background: #E6007E;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .price-ttc-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .current-price {
+            font-size: 28px;
+            font-weight: bold;
+            color: #E6007E;
+            margin-bottom: 5px;
+        }
+
+        .price-unit {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        /* Dynamic Price Display */
+        .dynamic-price-container {
+            background: #f0f8ff;
+            border-left: 4px solid #E6007E;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .dynamic-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .dynamic-price-row:last-child {
+            margin-bottom: 0;
+            padding-top: 10px;
+            border-top: 2px solid #E6007E;
+        }
+
+        .dynamic-price-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .dynamic-price-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dynamic-total-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dynamic-total-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #E6007E;
+        }
+
+        /* Quantity Controls */
+        .quantity-selector {
+            margin-bottom: 15px;
+        }
+
+        .quantity-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-input-group {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .qty-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .qty-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .qty-input {
+            border: none;
+            width: 60px;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .unit-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Scale Pricing */
+        .scale-pricing {
+            margin-bottom: 20px;
+        }
+
+        .scale-pricing-toggle {
+            background: white;
+            border: 1px solid #E6007E;
+            color: #E6007E;
+            padding: 10px 15px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .scale-pricing-toggle:hover {
+            background: #fff5fa;
+        }
+
+        .scale-pricing-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .scale-pricing-content.hidden {
+            display: none;
+        }
+
+        .scale-option {
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .scale-option:hover {
+            border-color: #E6007E;
+            background: #fff5fa;
+        }
+
+        .scale-option.selected {
+            border-color: #E6007E;
+            background: #fff5fa;
+            box-shadow: 0 0 0 2px rgba(230, 0, 126, 0.1);
+        }
+
+        .scale-qty {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .scale-price {
+            color: #E6007E;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .scale-unit {
+            font-size: 11px;
+            color: #666;
+            display: block;
+        }
+
+        .scale-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart {
+            background: #E6007E;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .add-to-cart:hover {
+            background: #c7006b;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #fff9e6;
+            border: 1px solid #ffe066;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+        }
+
+        .info-box h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+        }
+
+        .info-box li {
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .highlight {
+            animation: highlightPulse 0.5s ease;
+        }
+
+        @keyframes highlightPulse {
+            0%, 100% {
+                background: #f0f8ff;
+            }
+            50% {
+                background: #e1f0ff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="demo-title">
+            <h1>Antalis - Mockup Prix Dynamique</h1>
+            <p>Démonstration du comportement avant/après interaction utilisateur</p>
+        </div>
+
+        <div class="comparison">
+            <!-- Version AVANT (statique) -->
+            <div class="product-card">
+                <div class="card-header">
+                    <h3>❌ AVANT - Design actuel (statique)</h3>
+                </div>
+                <div class="product-content">
+                    <div class="product-image">
+                        <div style="width: 200px; height: 150px; background: #0066cc; color: white; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; margin: 0 auto;">
+                            image
+                        </div>
+                    </div>
+
+                    <div class="product-title">Papier Image Business Blanc A4 80 g/m²</div>
+                    <div class="product-ref">#430310</div>
+                    <div class="delivery-badge">● LIVRAISON EN 24/48H</div>
+
+                    <div class="price-section">
+                        <div class="price-ttc-label">Prix TTC</div>
+                        <div class="old-price">€10,93 <span class="discount-badge">-45,01%</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 10px;">
+                            <div class="current-price">€6,01</div>
+                        </div>
+                        <div class="price-unit">/ 1 rame(s)<br>(2,40 kg)</div>
+                    </div>
+
+                    <div class="quantity-selector">
+                        <div class="quantity-label">Quantité</div>
+                        <div class="quantity-controls">
+                            <div class="qty-input-group">
+                                <button class="qty-btn">−</button>
+                                <input type="number" class="qty-input" value="1" readonly>
+                                <button class="qty-btn">+</button>
+                            </div>
+                            <select class="unit-select" disabled>
+                                <option>carton(s)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="scale-pricing">
+                        <button class="scale-pricing-toggle" disabled>
+                            Prix par quantité ▼
+                        </button>
+                        <div class="scale-pricing-content hidden">
+                            <div class="scale-option">
+                                <div class="scale-qty">1 carton(s)</div>
+                                <div class="scale-price">€10,93</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option selected">
+                                <div class="scale-qty">5 carton(s)</div>
+                                <div class="scale-price">€7,66</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option">
+                                <div class="scale-qty">10 carton(s)</div>
+                                <div class="scale-price">€7,00</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option">
+                                <div class="scale-qty">24 carton(s)</div>
+                                <div class="scale-price">€6,56</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option">
+                                <div class="scale-qty">40 carton(s)</div>
+                                <div class="scale-price">€6,01</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="add-to-cart">
+                        <span>🛒</span> Ajouter au panier
+                    </button>
+                </div>
+            </div>
+
+            <!-- Version APRÈS (dynamique) -->
+            <div class="product-card">
+                <div class="card-header">
+                    <h3>✅ APRÈS - Design amélioré (dynamique)</h3>
+                </div>
+                <div class="product-content">
+                    <div class="product-image">
+                        <div style="width: 200px; height: 150px; background: #0066cc; color: white; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; margin: 0 auto;">
+                            image
+                        </div>
+                    </div>
+
+                    <div class="product-title">Papier Image Business Blanc A4 80 g/m²</div>
+                    <div class="product-ref">#430310</div>
+                    <div class="delivery-badge">● LIVRAISON EN 24/48H</div>
+
+                    <div class="price-section">
+                        <!-- Initial Price (visible par défaut) -->
+                        <div class="price-initial" id="priceInitial">
+                            <div class="price-ttc-label">Prix TTC</div>
+                            <div class="old-price">€10,93 <span class="discount-badge">-45,01%</span></div>
+                            <div style="display: flex; align-items: baseline; gap: 10px;">
+                                <div class="current-price">€6,01</div>
+                            </div>
+                            <div class="price-unit">/ 1 rame(s)<br>(2,40 kg)</div>
+                        </div>
+
+                        <!-- Dynamic Price (caché par défaut) -->
+                        <div class="price-dynamic" id="priceDynamic">
+                            <div class="dynamic-price-container">
+                                <div class="dynamic-price-row">
+                                    <span class="dynamic-price-label">Prix unitaire :</span>
+                                    <span class="dynamic-price-value" id="unitPrice">€6,01 / rame</span>
+                                </div>
+                                <div class="dynamic-price-row">
+                                    <span class="dynamic-total-label">Prix total :</span>
+                                    <span class="dynamic-total-value" id="totalPrice">€6,01</span>
+                                </div>
+                            </div>
+                            <div class="price-unit" id="priceDetails">(1 carton - 2,40 kg)</div>
+                        </div>
+                    </div>
+
+                    <div class="quantity-selector">
+                        <div class="quantity-label">Quantité</div>
+                        <div class="quantity-controls">
+                            <div class="qty-input-group">
+                                <button class="qty-btn" id="qtyMinus">−</button>
+                                <input type="number" class="qty-input" id="qtyInput" value="1" min="1">
+                                <button class="qty-btn" id="qtyPlus">+</button>
+                            </div>
+                            <select class="unit-select" id="unitSelect">
+                                <option>carton(s)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="scale-pricing">
+                        <button class="scale-pricing-toggle" id="scalePricingToggle">
+                            Prix par quantité ▼
+                        </button>
+                        <div class="scale-pricing-content" id="scalePricingContent">
+                            <div class="scale-option" data-qty="1" data-price="10.93">
+                                <div class="scale-qty">1 carton(s)</div>
+                                <div class="scale-price">€10,93</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option" data-qty="5" data-price="7.66">
+                                <div class="scale-qty">5 carton(s)</div>
+                                <div class="scale-price">€7,66</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option" data-qty="10" data-price="7.00">
+                                <div class="scale-qty">10 carton(s)</div>
+                                <div class="scale-price">€7,00</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option" data-qty="24" data-price="6.56">
+                                <div class="scale-qty">24 carton(s)</div>
+                                <div class="scale-price">€6,56</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                            <div class="scale-option" data-qty="40" data-price="6.01">
+                                <div class="scale-qty">40 carton(s)</div>
+                                <div class="scale-price">€6,01</div>
+                                <span class="scale-unit">/ 1 rame(s)</span>
+                                <div class="scale-label">Prix TTC</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="add-to-cart">
+                        <span>🛒</span> Ajouter au panier
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h4>💡 Comportement du nouveau design :</h4>
+            <ul>
+                <li><strong>État initial :</strong> Affichage du prix barré avec réduction pour montrer le "best price"</li>
+                <li><strong>Dès interaction :</strong> Le prix barré disparaît et est remplacé par un bloc dynamique</li>
+                <li><strong>Prix dynamique :</strong> Affiche le prix unitaire + prix total selon la quantité sélectionnée</li>
+                <li><strong>Interactions :</strong> Changement de quantité (+/-) OU clic sur prix par quantité</li>
+                <li><strong>Transitions fluides :</strong> Animations douces entre les états</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Pricing logic
+        const priceTiers = [
+            { qty: 1, price: 10.93 },
+            { qty: 5, price: 7.66 },
+            { qty: 10, price: 7.00 },
+            { qty: 24, price: 6.56 },
+            { qty: 40, price: 6.01 }
+        ];
+
+        let currentQty = 1;
+        let hasInteracted = false;
+        let scalePricingOpen = false;
+
+        // Elements
+        const priceInitial = document.getElementById('priceInitial');
+        const priceDynamic = document.getElementById('priceDynamic');
+        const qtyInput = document.getElementById('qtyInput');
+        const qtyMinus = document.getElementById('qtyMinus');
+        const qtyPlus = document.getElementById('qtyPlus');
+        const unitPrice = document.getElementById('unitPrice');
+        const totalPrice = document.getElementById('totalPrice');
+        const priceDetails = document.getElementById('priceDetails');
+        const scalePricingToggle = document.getElementById('scalePricingToggle');
+        const scalePricingContent = document.getElementById('scalePricingContent');
+        const scaleOptions = document.querySelectorAll('.scale-option');
+
+        // Get price for quantity
+        function getPriceForQty(qty) {
+            for (let i = priceTiers.length - 1; i >= 0; i--) {
+                if (qty >= priceTiers[i].qty) {
+                    return priceTiers[i].price;
+                }
+            }
+            return priceTiers[0].price;
+        }
+
+        // Switch to dynamic pricing
+        function switchToDynamicPricing() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                priceInitial.classList.add('hidden');
+                setTimeout(() => {
+                    priceDynamic.classList.add('visible');
+                    priceDynamic.querySelector('.dynamic-price-container').classList.add('highlight');
+                }, 300);
+            }
+        }
+
+        // Update pricing display
+        function updatePricing() {
+            const qty = parseInt(qtyInput.value);
+            const pricePerUnit = getPriceForQty(qty);
+            const total = pricePerUnit * qty;
+
+            unitPrice.textContent = `€${pricePerUnit.toFixed(2)} / rame`;
+            totalPrice.textContent = `€${total.toFixed(2)}`;
+            priceDetails.textContent = `(${qty} carton${qty > 1 ? 's' : ''} - ${(2.40 * qty).toFixed(2)} kg)`;
+
+            // Highlight animation
+            if (hasInteracted) {
+                priceDynamic.querySelector('.dynamic-price-container').classList.remove('highlight');
+                setTimeout(() => {
+                    priceDynamic.querySelector('.dynamic-price-container').classList.add('highlight');
+                }, 10);
+            }
+
+            // Update scale options selection
+            scaleOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (parseInt(option.dataset.qty) === qty) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        // Event listeners
+        qtyMinus.addEventListener('click', () => {
+            if (currentQty > 1) {
+                currentQty--;
+                qtyInput.value = currentQty;
+                switchToDynamicPricing();
+                updatePricing();
+            }
+        });
+
+        qtyPlus.addEventListener('click', () => {
+            currentQty++;
+            qtyInput.value = currentQty;
+            switchToDynamicPricing();
+            updatePricing();
+        });
+
+        qtyInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            if (val > 0) {
+                currentQty = val;
+                switchToDynamicPricing();
+                updatePricing();
+            }
+        });
+
+        // Scale pricing toggle
+        scalePricingToggle.addEventListener('click', () => {
+            scalePricingOpen = !scalePricingOpen;
+            if (scalePricingOpen) {
+                scalePricingContent.classList.remove('hidden');
+                scalePricingToggle.textContent = 'Prix par quantité ▲';
+            } else {
+                scalePricingContent.classList.add('hidden');
+                scalePricingToggle.textContent = 'Prix par quantité ▼';
+            }
+        });
+
+        // Scale option click
+        scaleOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const qty = parseInt(option.dataset.qty);
+                currentQty = qty;
+                qtyInput.value = qty;
+                switchToDynamicPricing();
+                updatePricing();
+            });
+        });
+
+        // Initialize
+        updatePricing();
+    </script>
+</body>
+</html>
